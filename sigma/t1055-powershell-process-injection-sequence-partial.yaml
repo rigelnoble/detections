@@ -1,0 +1,26 @@
+title: Potential attempted process injection via PowerShell API calls
+id: c1b7a949-31af-4f95-95f2-627002d6e29b
+description: Detects suspicious PowerShell script blocks where a partial process injection sequence is observed, potentially indicating a failed attempt or staging.
+references:
+  - https://rigelnoble.com/blogs/cybersecurity/detecting_process_injection/
+tags:
+  - attack.defense_evasion
+  - attack.privilege_escalation
+  - attack.t1055
+author: Rigel Noble
+date: 2025/05/25
+logsource:
+  product: windows
+  category: ps_script
+  definition: 'Requirement: PowerShell script block Logging must be enabled'
+detection:
+  selection:
+    EventID: 4104
+    ScriptBlockText|contains|all:
+      - VirtualAllocEx
+      - WriteProcessMemory
+  condition: selection
+level: medium
+falsepositives:
+  - Administrative scripting or debugging activity.
+  - Custom tooling used by IT or development teams.
