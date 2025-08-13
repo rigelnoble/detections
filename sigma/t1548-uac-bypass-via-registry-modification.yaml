@@ -1,0 +1,29 @@
+title: UAC bypass via registry modification
+id: 50934d57-0c0a-4217-b311-b0b45d00800b
+description: Detects registry changes that disable UAC by modifying EnableLUA, ConsentPromptBehaviorAdmin, PromptOnSecureDesktop, or UACDisableNotify registry keys. For the first three keys, when set to 0, UAC is disabled. For the last key, when set to 1, UAC is disabled.
+tags:
+    - attack.privilege_escalation
+    - attack.t1548.002
+author: Rigel Noble
+date: 2025/08/13
+logsource:
+    category: registry_event
+    product: windows
+detection:
+    selection_uac_key_disabled:
+        RegistryValueName|contains:
+            - 'EnableLUA'
+            - 'ConsentPromptBehaviorAdmin'
+            - 'PromptOnSecureDesktop'
+        RegistryValueData: 0
+        RegistryKey|contains:
+            - 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
+    selection_uac_key_enabled:
+        RegistryValueName: 'UACDisableNotify'
+        RegistryValueData: 1
+        RegistryKey|contains:
+            - 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Security Center'
+    condition: selection_uac_key_disabled or selection_uac_key_enabled
+falsepositives:
+    - Administrative scripts, group policy changes or other legitimate activity that intentionally sets these values
+level: high
